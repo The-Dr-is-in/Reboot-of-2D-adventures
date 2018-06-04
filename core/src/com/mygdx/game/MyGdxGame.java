@@ -23,7 +23,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 
 	@Override
 	public void create () {
-		textureAtlas=new TextureAtlas(Gdx.files.internal("AnimateSquare.atlas"));
+		textureAtlas=new TextureAtlas(Gdx.files.internal("core/assets/SpriteSheets/AnimateSquareFRAMES-packed/AnimateSquare.atlas"));
 		textureRegion=textureAtlas.findRegion("Square");
 		batch = new SpriteBatch();
 		//img = new Texture("BluePulse.png");
