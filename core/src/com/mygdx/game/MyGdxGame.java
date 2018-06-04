@@ -23,10 +23,12 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 
 	@Override
 	public void create () {
-		textureAtlas=new TextureAtlas();
+		textureAtlas=new TextureAtlas(Gdx.files.internal("AnimateSquare.atlas"));
+		textureRegion=textureAtlas.findRegion("Square");
 		batch = new SpriteBatch();
-		img = new Texture("PixelHouse.png");
-		sprite = new Sprite(img);
+		//img = new Texture("BluePulse.png");
+		//sprite = new Sprite(img);
+		sprite=new Sprite(textureRegion);
 		sprite.setPosition(Gdx.graphics.getWidth()/2-sprite.getWidth()/2, Gdx.graphics.getHeight()/2-sprite.getHeight()/2);
 		sprite.setScale(25f);
 		Gdx.input.setInputProcessor(this);
@@ -47,10 +49,12 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		batch.begin();
-		batch.draw(sprite, sprite.getX(), sprite.getY(),  //Starting point (bottom left corner of picture)
+		/*batch.draw(sprite, sprite.getX(), sprite.getY(),  //Starting point (bottom left corner of picture)
 				sprite.getWidth()/2, sprite.getHeight()/2, //Origin (point of rotation)
 				sprite.getWidth(), sprite.getHeight(), //Size of image
 				sprite.getScaleX(), sprite.getScaleY(), sprite.getRotation()); //How much to scale image up by, and rotation amount
+		*/
+		sprite.draw(batch);
 
 		/*IMPORTANT MATH NOTE: the coordinate system is such so
 		 that the bottom left coordinate is 0,0 and the rest follows
