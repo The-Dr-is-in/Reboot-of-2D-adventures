@@ -15,66 +15,88 @@ import static com.badlogic.gdx.Gdx.input;
 
 public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 	SpriteBatch batch;
-	boolean jumping=false;
-	boolean falling=false;
-	Texture img;
-	Sprite sprite;
+	boolean jumping = false;
+	boolean falling = false;
+	Texture platformSkin;
+	Sprite platform;
+	Sprite player;
 	TextureAtlas textureAtlas;
 	TextureRegion textureRegion;
 	int currentFrame = 1;
-	int MAX_FRAME=32;
+	int MAX_FRAME = 32;
+	int jumpCount=0;
 
 
 	@Override
-	public void create () {
-		textureAtlas=new TextureAtlas(Gdx.files.internal("SpriteSheets/AnimateSquareFRAMES-packed/AnimateSquare.atlas"));
-		textureRegion=textureAtlas.findRegion("Square");
+	public void create() {
+		textureAtlas = new TextureAtlas(Gdx.files.internal("SpriteSheets/AnimateSquareFRAMES-packed/AnimateSquare.atlas"));
+		textureRegion = textureAtlas.findRegion("Square");
 		batch = new SpriteBatch();
-		//img = new Texture("BluePulse.png");
-		//sprite = new Sprite(img);
-		sprite=new Sprite(textureRegion);
-		sprite.setPosition(Gdx.graphics.getWidth()/2-sprite.getWidth()/2, 200);
-		sprite.setScale(10f);
+		platformSkin = new Texture("Sprites/platform.png");
+		platform = new Sprite(platformSkin);
+		player = new Sprite(textureRegion);
+		platform.setPosition(200,270);
+		player.setPosition(Gdx.graphics.getWidth() / 2 - player.getWidth() / 2, 200);
+		player.setScale(10f);
+		platform.setScale(20f);
+
 		Gdx.input.setInputProcessor(this);
 
 	}
 
 
-
 	@Override
-	public void render () {
+	public void render() {
 		//"Polling" type methods. Runs a check every frame
-		if(input.isKeyPressed(Input.Keys.A)){
-			sprite.translateX(-1);
+		if (input.isKeyPressed(Input.Keys.A)) {
+			player.translateX(-1);
 			currentFrame--;
-			if(currentFrame<1){
-				currentFrame=MAX_FRAME;
+			if (currentFrame < 1) {
+				currentFrame = MAX_FRAME;
 			}
-			sprite.setRegion(textureAtlas.findRegion("Square", currentFrame));}
-		if(input.isKeyPressed((Input.Keys.D))){
-			sprite.translateX(1);
+			player.setRegion(textureAtlas.findRegion("Square", currentFrame));
+		}
+		if (input.isKeyPressed((Input.Keys.D))) {
+			player.translateX(1);
 			currentFrame++;
-			if(currentFrame>MAX_FRAME){
-				currentFrame=1;
+			if (currentFrame > MAX_FRAME) {
+				currentFrame = 1;
 			}
-			sprite.setRegion(textureAtlas.findRegion("Square", currentFrame));
+			player.setRegion(textureAtlas.findRegion("Square", currentFrame));
 		}
 
-		if(sprite.getY()==300){jumping=false; falling=true;}
-		if(sprite.getY()==200){falling=false;}
-		if(jumping){sprite.translateY(2);}
-		if(falling){sprite.translateY(-2);}
+		//jump logic, jumping and falling are booleans in my fields.
+		if (jumpCount==60) {
+			jumping = false;
+			falling = true;
+			jumpCount=0;
+		}
+		if (player.getY() == 200
+			||
+			(player.getBoundingRectangle().contains(platform.getBoundingRectangle())
+			&&
+			player.getY()<platform.getY())) {
+
+			falling = false;
+		}
+		if (jumping) {
+			player.translateY(2); jumpCount++;
+		}
+		if (falling) {
+			player.translateY(-2);
+		}
 
 
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		batch.begin();
-		/*batch.draw(sprite, sprite.getX(), sprite.getY(),  //Starting point (bottom left corner of picture)
-				sprite.getWidth()/2, sprite.getHeight()/2, //Origin (point of rotation)
-				sprite.getWidth(), sprite.getHeight(), //Size of image
-				sprite.getScaleX(), sprite.getScaleY(), sprite.getRotation()); //How much to scale image up by, and rotation amount
+		/*batch.draw(player, player.getX(), player.getY(),  //Starting point (bottom left corner of picture)
+				player.getWidth()/2, player.getHeight()/2, //Origin (point of rotation)
+				player.getWidth(), player.getHeight(), //Size of image
+				player.getScaleX(), player.getScaleY(), player.getRotation()); //How much to scale image up by, and rotation amount
 		*/
-		sprite.draw(batch);
+		player.draw(batch);
+		platform.draw(batch);
 
 		/*IMPORTANT MATH NOTE: the coordinate system is such so
 		 that the bottom left coordinate is 0,0 and the rest follows
@@ -83,9 +105,9 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 	}
 
 	@Override
-	public void dispose (){
+	public void dispose() {
 		batch.dispose();
-		img.dispose();
+		platformSkin.dispose();
 	}
 
 	//"Event" type methods. Only occurs when key is pressed.
@@ -93,11 +115,10 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 
 	@Override
 	public boolean keyDown(int keycode) {
-		if (jumping || falling){
+		if (jumping || falling) {
 			return false;
-		}
-		else if(keycode== Input.Keys.W){
-			jumping=true;
+		} else if (keycode == Input.Keys.W) {
+			jumping = true;
 		}
 
 		return false;
@@ -114,6 +135,22 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 		return false;
 	}
 
+
+	@Override
+	public boolean mouseMoved(int screenX, int screenY) {
+		return false;
+	}
+
+	@Override
+	public boolean scrolled(int amount) {
+		return false;
+	}
+
+
+
+
+
+	//Forced android imports I'm not using
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 		return false;
@@ -129,13 +166,4 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 		return false;
 	}
 
-	@Override
-	public boolean mouseMoved(int screenX, int screenY) {
-		return false;
-	}
-
-	@Override
-	public boolean scrolled(int amount) {
-		return false;
-	}
 }
