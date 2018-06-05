@@ -19,30 +19,45 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 	Sprite sprite;
 	TextureAtlas textureAtlas;
 	TextureRegion textureRegion;
+	int currentFrame = 1;
+	int MAX_FRAME=32;
 
 
 	@Override
 	public void create () {
-		textureAtlas=new TextureAtlas(Gdx.files.internal("core/assets/SpriteSheets/AnimateSquareFRAMES-packed/AnimateSquare.atlas"));
+		textureAtlas=new TextureAtlas(Gdx.files.internal("SpriteSheets/AnimateSquareFRAMES-packed/AnimateSquare.atlas"));
 		textureRegion=textureAtlas.findRegion("Square");
 		batch = new SpriteBatch();
 		//img = new Texture("BluePulse.png");
 		//sprite = new Sprite(img);
 		sprite=new Sprite(textureRegion);
 		sprite.setPosition(Gdx.graphics.getWidth()/2-sprite.getWidth()/2, Gdx.graphics.getHeight()/2-sprite.getHeight()/2);
-		sprite.setScale(25f);
+		sprite.setScale(10f);
 		Gdx.input.setInputProcessor(this);
 
 	}
 
-	float SpriteSize =25;
+	float SpriteSize =15;
 
 	@Override
 	public void render () {
 		sprite.setScale(SpriteSize);
 		//"Polling" type methods. Runs a check every frame
-		if(input.isKeyPressed(Input.Keys.A)){ sprite.translateX(-3f); sprite.rotate(5f);}
-		if(input.isKeyPressed(Input.Keys.D)){ sprite.translateX(3f); sprite.rotate(-5f);}
+		if(input.isKeyPressed(Input.Keys.A)){
+			sprite.translateX(-1);
+			currentFrame++;
+			if(currentFrame>MAX_FRAME){
+				currentFrame=1;
+			}
+			sprite.setRegion(textureAtlas.findRegion("Square", currentFrame));}
+		if(input.isKeyPressed((Input.Keys.D))){
+			sprite.translateX(1);
+			currentFrame--;
+			if(currentFrame<1){
+				currentFrame=MAX_FRAME;
+			}
+			sprite.setRegion(textureAtlas.findRegion("Square", currentFrame));
+		}
 		if(input.isKeyPressed(Input.Keys.W)){ if(SpriteSize <35) SpriteSize +=0.5;}
 		if(input.isKeyPressed(Input.Keys.S)){ if(SpriteSize >14) SpriteSize -=0.5;}
 
@@ -69,15 +84,15 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 	}
 
 	//"Event" type methods. Only occurs when key is pressed.
+
 	@Override
 	public boolean keyDown(int keycode) {
-		if(keycode==Input.Keys.E){sprite.translate(10,10);}
+
 		return false;
 	}
 
 	@Override
 	public boolean keyUp(int keycode) {
-		if(keycode==Input.Keys.E){sprite.translate(-10,-10);}
 		return false;
 	}
 
