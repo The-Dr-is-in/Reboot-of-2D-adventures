@@ -15,6 +15,8 @@ import static com.badlogic.gdx.Gdx.input;
 
 public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 	SpriteBatch batch;
+	boolean jumping=false;
+	boolean falling=false;
 	Texture img;
 	Sprite sprite;
 	TextureAtlas textureAtlas;
@@ -31,35 +33,38 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 		//img = new Texture("BluePulse.png");
 		//sprite = new Sprite(img);
 		sprite=new Sprite(textureRegion);
-		sprite.setPosition(Gdx.graphics.getWidth()/2-sprite.getWidth()/2, Gdx.graphics.getHeight()/2-sprite.getHeight()/2);
+		sprite.setPosition(Gdx.graphics.getWidth()/2-sprite.getWidth()/2, 200);
 		sprite.setScale(10f);
 		Gdx.input.setInputProcessor(this);
 
 	}
 
-	float SpriteSize =15;
+
 
 	@Override
 	public void render () {
-		sprite.setScale(SpriteSize);
 		//"Polling" type methods. Runs a check every frame
 		if(input.isKeyPressed(Input.Keys.A)){
 			sprite.translateX(-1);
-			currentFrame++;
-			if(currentFrame>MAX_FRAME){
-				currentFrame=1;
-			}
-			sprite.setRegion(textureAtlas.findRegion("Square", currentFrame));}
-		if(input.isKeyPressed((Input.Keys.D))){
-			sprite.translateX(1);
 			currentFrame--;
 			if(currentFrame<1){
 				currentFrame=MAX_FRAME;
 			}
+			sprite.setRegion(textureAtlas.findRegion("Square", currentFrame));}
+		if(input.isKeyPressed((Input.Keys.D))){
+			sprite.translateX(1);
+			currentFrame++;
+			if(currentFrame>MAX_FRAME){
+				currentFrame=1;
+			}
 			sprite.setRegion(textureAtlas.findRegion("Square", currentFrame));
 		}
-		if(input.isKeyPressed(Input.Keys.W)){ if(SpriteSize <35) SpriteSize +=0.5;}
-		if(input.isKeyPressed(Input.Keys.S)){ if(SpriteSize >14) SpriteSize -=0.5;}
+
+		if(sprite.getY()==300){jumping=false; falling=true;}
+		if(sprite.getY()==200){falling=false;}
+		if(jumping){sprite.translateY(2);}
+		if(falling){sprite.translateY(-2);}
+
 
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -85,8 +90,15 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 
 	//"Event" type methods. Only occurs when key is pressed.
 
+
 	@Override
 	public boolean keyDown(int keycode) {
+		if (jumping || falling){
+			return false;
+		}
+		else if(keycode== Input.Keys.W){
+			jumping=true;
+		}
 
 		return false;
 	}
