@@ -1,9 +1,6 @@
 package com.mygdx.game;
 
-import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -67,6 +64,13 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 				currentFrame = 1;
 			}
 			player.setRegion(textureAtlas.findRegion("Square", currentFrame));
+		}
+
+		if(player.getX()>Gdx.graphics.getWidth()){
+			player.setX(0);
+		}
+		if(player.getX()<0){
+			player.setX(Gdx.graphics.getWidth());
 		}
 
 		//jump logic, jumping and falling are booleans in my fields.
