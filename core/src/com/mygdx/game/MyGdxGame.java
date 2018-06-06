@@ -71,14 +71,20 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 			falling = true;
 			jumpCount=0;
 		}
+
 		if (player.getY() == 200
 			||
-			(player.getBoundingRectangle().contains(platform.getBoundingRectangle())
+			(player.getBoundingRectangle().overlaps(platform.getBoundingRectangle())
 			&&
 			player.getY()<platform.getY())) {
 
 			falling = false;
 		}
+
+		if(player.getY()>200 && !platform.getBoundingRectangle().overlaps(platform.getBoundingRectangle())){
+			falling=true;
+		}
+
 		if (jumping) {
 			player.translateY(2); jumpCount++;
 		}
