@@ -18,7 +18,8 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 	boolean jumping = false;
 	boolean falling = false;
 	Texture platformSkin;
-	Sprite platform;
+	Sprite floatingPlatform;
+	Sprite floor;
 	Sprite player;
 	TextureAtlas textureAtlas;
 	TextureRegion textureRegion;
@@ -33,12 +34,15 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 		textureRegion = textureAtlas.findRegion("Square");
 		batch = new SpriteBatch();
 		platformSkin = new Texture("Sprites/platform.png");
-		platform = new Sprite(platformSkin);
+		floatingPlatform = new Sprite(platformSkin);
+		floor=new Sprite(platformSkin);
 		player = new Sprite(textureRegion);
-		platform.setPosition(200,270);
+		floatingPlatform.setPosition(200,270);
 		player.setPosition(Gdx.graphics.getWidth() / 2 - player.getWidth() / 2, 200);
 		player.setScale(10f);
-		platform.setScale(20f);
+		floatingPlatform.setScale(20f);
+		floor.setScale(200,10);
+		floor.setPosition(Gdx.graphics.getWidth()/2,165);
 
 		Gdx.input.setInputProcessor(this);
 
@@ -72,18 +76,17 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 			jumpCount=0;
 		}
 
-		if (player.getY() == 200
+		if (player.getBoundingRectangle().overlaps(floor.getBoundingRectangle())
 			||
-			(player.getBoundingRectangle().overlaps(platform.getBoundingRectangle())
-			&&
-			player.getY()<platform.getY())) {
+			(player.getBoundingRectangle().overlaps(floatingPlatform.getBoundingRectangle()))) {
 
 			falling = false;
 		}
 
-		if(player.getY()>200 && !platform.getBoundingRectangle().overlaps(platform.getBoundingRectangle())){
+		if(!jumping && !player.getBoundingRectangle().overlaps(floor.getBoundingRectangle())
+					&& !player.getBoundingRectangle().overlaps(floatingPlatform.getBoundingRectangle())){
 			falling=true;
-		}
+		} else{falling=false;}
 
 		if (jumping) {
 			player.translateY(2); jumpCount++;
@@ -102,7 +105,8 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 				player.getScaleX(), player.getScaleY(), player.getRotation()); //How much to scale image up by, and rotation amount
 		*/
 		player.draw(batch);
-		platform.draw(batch);
+		floatingPlatform.draw(batch);
+		floor.draw(batch);
 
 		/*IMPORTANT MATH NOTE: the coordinate system is such so
 		 that the bottom left coordinate is 0,0 and the rest follows
