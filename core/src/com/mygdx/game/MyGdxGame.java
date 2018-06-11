@@ -22,7 +22,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 	TextureRegion textureRegion;
 	int currentFrame = 1;
 	int MAX_FRAME = 32;
-	int jumpCount=0;
+	int jumpCount=1;
 
 
 	@Override
@@ -77,7 +77,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 		if (jumpCount==60) {
 			jumping = false;
 			falling = true;
-			jumpCount=0;
+			jumpCount=1;
 		}
 
 		if (player.getBoundingRectangle().overlaps(floor.getBoundingRectangle())
@@ -93,7 +93,8 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 		} else{falling=false;}
 
 		if (jumping) {
-			player.translateY(2); jumpCount++;
+			player.translateY((float) Math.pow(10,(1.0/jumpCount))); jumpCount++;
+			System.out.println(player.getY());
 		}
 		if (falling) {
 			player.translateY(-2);
