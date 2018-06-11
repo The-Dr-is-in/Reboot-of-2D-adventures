@@ -7,6 +7,8 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.World;
 
 import static com.badlogic.gdx.Gdx.input;
 
@@ -15,27 +17,38 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 	boolean jumping = false;
 	boolean falling = false;
 	Texture platformSkin;
-	Environment floatingPlatform;
-	Environment floor;
+	Sprite floatingPlatform;
+	Sprite floor;
 	Sprite player;
 	TextureAtlas textureAtlas;
 	TextureRegion textureRegion;
 	int currentFrame = 1;
 	int MAX_FRAME = 32;
-	int jumpCount=1;
+	float jumpCount=2;
+	float accelDown =1;
+	float accelUp=0;
+	boolean walledOff=false;
+	World world;
+	Body body;
 
 
+	//TODO for emphasis
+	//Here's the tutorial I'm using for the physcis stuff: http://www.gamefromscratch.com/post/2014/08/27/LibGDX-Tutorial-13-Physics-with-Box2D-Part-1-A-Basic-Physics-Simulations.aspx
 	@Override
 	public void create() {
+		/*world = new World (new Vector2(0,-98f),true);
+		BodyDef bodyDef = new BodyDef();
+		bodyDef.type=BodyDef.BodyType.DynamicBody;
+		PolygonShape=*/
 		textureAtlas = new TextureAtlas(Gdx.files.internal("SpriteSheets/AnimateSquareFRAMES-packed/AnimateSquare.atlas"));
 		textureRegion = textureAtlas.findRegion("Square");
 		batch = new SpriteBatch();
 		platformSkin = new Texture("Sprites/platform.png");
-		floatingPlatform = new Environment(platformSkin);
-		floor=new Environment(platformSkin);
+		floatingPlatform = new Sprite(platformSkin);
+		floor=new Sprite(platformSkin);
 		player = new Sprite(textureRegion);
 		floatingPlatform.setPosition(200,270);
-		player.setPosition(Gdx.graphics.getWidth() / 2 - player.getWidth() / 2, 200);
+		player.setPosition(Gdx.graphics.getWidth() / 2, 200);
 		player.setScale(10f);
 		floatingPlatform.setScale(20f);
 		floor.setScale(200,10);
@@ -49,8 +62,11 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 	@Override
 	public void render() {
 		//"Polling" type methods. Runs a check every frame
+
+		//floatingPlatform.translateX(5);
 		if (input.isKeyPressed(Input.Keys.A)) {
 			player.translateX(-1);
+			System.out.println(player.getX());
 			currentFrame--;
 			if (currentFrame < 1) {
 				currentFrame = MAX_FRAME;
@@ -59,6 +75,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 		}
 		if (input.isKeyPressed((Input.Keys.D))) {
 			player.translateX(1);
+			System.out.println(player.getX());
 			currentFrame++;
 			if (currentFrame > MAX_FRAME) {
 				currentFrame = 1;
@@ -72,17 +89,21 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 		if(player.getX()<0){
 			player.setX(Gdx.graphics.getWidth());
 		}
+		if(floatingPlatform.getX()>Gdx.graphics.getWidth()){
+			floatingPlatform.setX(0);
+		}
+		if(floatingPlatform.getX()<0){
+			floatingPlatform.setX(Gdx.graphics.getWidth());
+		}
 
 		//jump logic, jumping and falling are booleans in my fields.
 		if (jumpCount==60) {
 			jumping = false;
 			falling = true;
-			jumpCount=1;
+			jumpCount=2;
 		}
 
-		if (player.getBoundingRectangle().overlaps(floor.getBoundingRectangle())
-			||
-			(player.getBoundingRectangle().overlaps(floatingPlatform.getBoundingRectangle()))) {
+		if (player.getBoundingRectangle().overlaps(floor.getBoundingRectangle())) {
 
 			falling = false;
 		}
@@ -90,14 +111,37 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 		if(!jumping && !player.getBoundingRectangle().overlaps(floor.getBoundingRectangle())
 					&& !player.getBoundingRectangle().overlaps(floatingPlatform.getBoundingRectangle())){
 			falling=true;
+			accelDown =1;
 		} else{falling=false;}
 
+		if(jumping && player.getBoundingRectangle().overlaps(floatingPlatform.getBoundingRectangle())
+				   && player.getY()<290){
+			player.translateY(-5);
+			falling=true;
+			jumping=false;
+			accelDown=1;
+		}
+
+
+
+		if(jumping && player.getBoundingRectangle().overlaps(floatingPlatform.getBoundingRectangle())
+				&& (70+player.getX()-floatingPlatform.getX())>1){
+			player.translateX(-5);
+		}
+
+		if(jumping && player.getBoundingRectangle().overlaps(floatingPlatform.getBoundingRectangle())
+				&& (70+player.getX()-(floatingPlatform.getX()+80))>1){
+			player.translateX(5);
+		}
+
 		if (jumping) {
-			player.translateY((float) Math.pow(10,(1.0/jumpCount))); jumpCount++;
+			player.translateY(accelUp); jumpCount++;
+			accelUp-=0.2;
 			System.out.println(player.getY());
 		}
 		if (falling) {
-			player.translateY(-2);
+			accelDown +=2;
+			player.translateY(-(1+ accelDown));
 		}
 
 
@@ -134,6 +178,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 			return false;
 		} else if (keycode == Input.Keys.W) {
 			jumping = true;
+			accelUp=7;
 		}
 
 		return false;
