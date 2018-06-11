@@ -1,14 +1,14 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.*;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 
 import static com.badlogic.gdx.Gdx.input;
 
@@ -28,6 +28,10 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 	float accelDown =1;
 	float accelUp=0;
 	boolean walledOff=false;
+	int currentScore=0;
+	Label score;
+	BitmapFont font;
+	Label.LabelStyle scoreStyle;
 	World world;
 	Body body;
 
@@ -40,6 +44,11 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 		BodyDef bodyDef = new BodyDef();
 		bodyDef.type=BodyDef.BodyType.DynamicBody;
 		PolygonShape=*/
+		font=new BitmapFont(Gdx.files.internal("Score.fnt"));
+		String stringScore = new String("Score="+currentScore);
+		scoreStyle=new Label.LabelStyle(font, null);
+		score=new Label(stringScore,scoreStyle);
+		score.setPosition(20,400);
 		textureAtlas = new TextureAtlas(Gdx.files.internal("SpriteSheets/AnimateSquareFRAMES-packed/AnimateSquare.atlas"));
 		textureRegion = textureAtlas.findRegion("Square");
 		batch = new SpriteBatch();
@@ -63,7 +72,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 	public void render() {
 		//"Polling" type methods. Runs a check every frame
 
-		//floatingPlatform.translateX(5);
+		floatingPlatform.translateX(5);
 		if (input.isKeyPressed(Input.Keys.A)) {
 			player.translateX(-1);
 			System.out.println(player.getX());
@@ -123,16 +132,16 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 		}
 
 
-
 		if(jumping && player.getBoundingRectangle().overlaps(floatingPlatform.getBoundingRectangle())
-				&& (70+player.getX()-floatingPlatform.getX())>1){
-			player.translateX(-5);
+				&& (player.getX()-(floatingPlatform.getX()+80))<1){
+			falling=true;
 		}
 
-		if(jumping && player.getBoundingRectangle().overlaps(floatingPlatform.getBoundingRectangle())
-				&& (70+player.getX()-(floatingPlatform.getX()+80))>1){
-			player.translateX(5);
-		}
+		if(!player.getBoundingRectangle().overlaps(floatingPlatform.getBoundingRectangle())){
+			if(floatingPlatform.getX()==Gdx.graphics.getWidth()-5){
+				currentScore++;
+			}
+		} else{currentScore=0;}
 
 		if (jumping) {
 			player.translateY(accelUp); jumpCount++;
@@ -156,6 +165,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 		player.draw(batch);
 		floatingPlatform.draw(batch);
 		floor.draw(batch);
+		score.draw(batch,1);
 
 		/*IMPORTANT MATH NOTE: the coordinate system is such so
 		 that the bottom left coordinate is 0,0 and the rest follows
@@ -166,7 +176,6 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 	@Override
 	public void dispose() {
 		batch.dispose();
-		platformSkin.dispose();
 	}
 
 	//"Event" type methods. Only occurs when key is pressed.
@@ -178,7 +187,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 			return false;
 		} else if (keycode == Input.Keys.W) {
 			jumping = true;
-			accelUp=7;
+			accelUp=8;
 		}
 
 		return false;
