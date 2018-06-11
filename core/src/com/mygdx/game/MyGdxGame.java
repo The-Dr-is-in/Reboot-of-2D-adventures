@@ -15,8 +15,8 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 	boolean jumping = false;
 	boolean falling = false;
 	Texture platformSkin;
-	Sprite floatingPlatform;
-	Sprite floor;
+	Environment floatingPlatform;
+	Environment floor;
 	Sprite player;
 	TextureAtlas textureAtlas;
 	TextureRegion textureRegion;
@@ -31,8 +31,8 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 		textureRegion = textureAtlas.findRegion("Square");
 		batch = new SpriteBatch();
 		platformSkin = new Texture("Sprites/platform.png");
-		floatingPlatform = new Sprite(platformSkin);
-		floor=new Sprite(platformSkin);
+		floatingPlatform = new Environment(platformSkin);
+		floor=new Environment(platformSkin);
 		player = new Sprite(textureRegion);
 		floatingPlatform.setPosition(200,270);
 		player.setPosition(Gdx.graphics.getWidth() / 2 - player.getWidth() / 2, 200);
