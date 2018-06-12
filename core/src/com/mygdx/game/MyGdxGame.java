@@ -57,7 +57,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 		floatingPlatform = new Sprite(platformSkin);
 		floor=new Sprite(platformSkin);
 		player = new Sprite(textureRegion);
-		floatingPlatform.setPosition(200,270);
+		floatingPlatform.setPosition(50,200);
 		player.setPosition(Gdx.graphics.getWidth() / 2, 200);
 		player.setScale(10f);
 		floatingPlatform.setScale(20f);
@@ -118,6 +118,10 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 			jumpCount=2;
 		}
 
+		if(player.getX()<200){
+			player.setX(200);
+		}
+
 		if (player.getBoundingRectangle().overlaps(floor.getBoundingRectangle())) {
 
 			falling = false;
@@ -130,7 +134,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 		} else{falling=false;}
 
 		if(jumping && player.getBoundingRectangle().overlaps(floatingPlatform.getBoundingRectangle())
-				   && player.getY()<290){
+				   && player.getY()<220 && player.getY()>floor.getY()+floor.getRegionHeight()){
 			player.translateY(-5);
 			falling=true;
 			jumping=false;
@@ -193,7 +197,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 			return false;
 		} else if (keycode == Input.Keys.W) {
 			jumping = true;
-			accelUp=10;
+			accelUp=8;
 		}
 
 		return false;
