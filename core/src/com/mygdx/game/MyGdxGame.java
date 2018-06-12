@@ -30,6 +30,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 	boolean walledOff=false;
 	int currentScore=0;
 	Label score;
+	String stringScore;
 	BitmapFont font;
 	Label.LabelStyle scoreStyle;
 	World world;
@@ -45,7 +46,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 		bodyDef.type=BodyDef.BodyType.DynamicBody;
 		PolygonShape=*/
 		font=new BitmapFont(Gdx.files.internal("Score.fnt"));
-		String stringScore = new String("Score="+currentScore);
+		stringScore = new String("Score="+currentScore);
 		scoreStyle=new Label.LabelStyle(font, null);
 		score=new Label(stringScore,scoreStyle);
 		score.setPosition(20,400);
@@ -72,7 +73,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 	public void render() {
 		//"Polling" type methods. Runs a check every frame
 
-		floatingPlatform.translateX(5);
+		floatingPlatform.translateX(5+(currentScore));
 		if (input.isKeyPressed(Input.Keys.A)) {
 			player.translateX(-1);
 			System.out.println(player.getX());
@@ -99,14 +100,19 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 			player.setX(Gdx.graphics.getWidth());
 		}
 		if(floatingPlatform.getX()>Gdx.graphics.getWidth()){
+			score.setText("Score="+currentScore);
+			currentScore++;
 			floatingPlatform.setX(0);
 		}
-		if(floatingPlatform.getX()<0){
-			floatingPlatform.setX(Gdx.graphics.getWidth());
+
+		if (player.getBoundingRectangle().overlaps(floatingPlatform.getBoundingRectangle())){
+			currentScore=0;
 		}
 
+
+
 		//jump logic, jumping and falling are booleans in my fields.
-		if (jumpCount==60) {
+		if (jumpCount>30) {
 			jumping = false;
 			falling = true;
 			jumpCount=2;
@@ -149,7 +155,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 			System.out.println(player.getY());
 		}
 		if (falling) {
-			accelDown +=2;
+			accelDown +=currentScore+1;
 			player.translateY(-(1+ accelDown));
 		}
 
@@ -187,7 +193,7 @@ public class MyGdxGame extends ApplicationAdapter implements InputProcessor {
 			return false;
 		} else if (keycode == Input.Keys.W) {
 			jumping = true;
-			accelUp=8;
+			accelUp=10;
 		}
 
 		return false;
